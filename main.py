@@ -1,5 +1,6 @@
 import time
 import openpyxl
+from openpyxl.styles import Font
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -27,6 +28,8 @@ sn7 = sheet.cell(9,16).value
 
 for row in range(11, sheet.max_row + 1):
 
+    if row > 13:
+        continue
 
     usn = sheet.cell(row,2).value
     name = sheet.cell(row,3).value
@@ -54,7 +57,10 @@ for row in range(11, sheet.max_row + 1):
     sendButton_xpath = '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div[2]/button'
     try: 
             sendButton = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, sendButton_xpath)))
+            # sendButton.click()
     except:
+            sheet.cell(row,20).value = "Error"
+            sheet.cell(row,20).font = Font(color='00ff0000')
             with open("./error.txt","a") as file:
                     file.write(usn+"\n")
     
@@ -63,6 +69,8 @@ for row in range(11, sheet.max_row + 1):
 threedot_xpath = "/html/body/div[1]/div/div/div[3]/header/div[2]/div/span/div[4]/div/span"
 logoutbutton_xpath = '/html/body/div[1]/div/div/div[3]/header/div[2]/div/span/div[4]/span/div/ul/li[6]/div'
 confirm_xpath = "/html/body/div[1]/div/span[2]/div/div/div/div/div/div/div[3]/div/div[2]/div/div"
+
+wb.save('studentData.xlsx')
 
 threedot = WebDriverWait(browser, 5).until(
         EC.presence_of_element_located((By.XPATH, threedot_xpath))
