@@ -54,8 +54,6 @@ for row in range(11, sheet.max_row + 1):
     sendButton_xpath = '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div[2]/button'
     try: 
             sendButton = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, sendButton_xpath)))
-            # sendButton.click()
-            # time.sleep(4)
     except:
             with open("./error.txt","a") as file:
                     file.write(usn+"\n")
