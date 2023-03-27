@@ -1,3 +1,0 @@
-([('main',
-   '/Users/bhuvansa/Desktop/Projects/Whatsappbot/WhatsappMarksBot/dist/main',
-   'EXECUTABLE')],)

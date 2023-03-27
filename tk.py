@@ -1,13 +1,9 @@
 from tkinter import *
-from tkinter import filedialog
 
+root = Tk()
 
-filepath = "empty string of some loong length"
+myLabel1 = Label(root, text="MarksSender")
+myLabel2 = Label(root, text="Whatsapp")
 
-window = Tk()
-button = Button(text="Open",command=openFile)
-button.pack()
-window.mainloop()
-
-print(filepath)
-
+myLabel1.grid(row=0,column=0)
+myLabel2.grid(row=0,column=1)
