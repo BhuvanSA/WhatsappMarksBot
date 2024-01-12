@@ -1,3 +1,4 @@
+from turtle import st
 import openpyxl
 import re
 
@@ -15,7 +16,7 @@ class ExcelManager:
         self.max_marks = dict()
         self.max_internal = 1
         self.__get_max_marks()
-        print(self.max_internal, self.max_marks)
+        # print(self.max_internal, self.max_marks)
 
     def __skip_header(self):
         ''' Skips the header by finding the row with 'Sl No' in the first column '''
@@ -62,27 +63,27 @@ class ExcelManager:
         # Increment the __curr_row
         self.__curr_row += 1
 
-    def get_next_student_data(self, internal: int, slno: int = 1):
+    def get_student_data(self, internal: int, slno: int = 1):
+        """ Returns the student data in the form of a dictionary
+            internal: int - The internal number (1, 2, 3, etc.)
+            slno: int - The serial number of the student (1, 2, 3, etc.)
+        """
 
+        student_data = dict()
         row = self.__curr_row + slno - 1
 
-        usn = str(self.sheet.cell(row, 2).value)
-        if usn == 'None':
+        student_data['usn'] = str(self.sheet.cell(row, 2).value)
+        if student_data['usn'] == 'None':
             return None
-        name = str(self.sheet.cell(row, 3).value)
-        print(usn, name, end=' ')
+        student_data['name'] = str(self.sheet.cell(row, 3).value)
 
-        for col in range(3 + internal, self.sheet.max_column + 1, self.max_internal):
-            print(str(self.sheet.cell(row, col).value), end=' ')
-        print()
+        for col in range(3 + internal, self.sheet.max_column - 1, self.max_internal):
+            subject_code = str(self.sheet.cell(
+                self.column_names_row, col).value)
+            value = str(self.sheet.cell(row, col).value)
+            student_data[subject_code] = f"{value}/{self.max_marks[subject_code]}"
 
-    def get_next_student(self):
-        studentRow = []
-        row = self.__curr_row
-        for col in range(1, self.sheet.max_column + 1):
-            if (self.sheet.cell(row, col).value) == 'NR' or (self.sheet.cell(row, col).value) == None:
-                continue
-            temp = self.sheet.cell(row, col).value
-            studentRow.append(temp)
-        self.__curr_row += 1
-        return studentRow
+        student_data['phone_number'] = str(
+            self.sheet.cell(row, self.sheet.max_column).value)
+
+        return student_data
