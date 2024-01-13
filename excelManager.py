@@ -16,6 +16,7 @@ class ExcelManager:
         self.max_marks = dict()
         self.max_internal = 1
         self.__get_max_marks()
+        self.max_rows = self.sheet.max_row - self.__curr_row + 1
         # print(self.max_internal, self.max_marks)
 
     def __skip_header(self):

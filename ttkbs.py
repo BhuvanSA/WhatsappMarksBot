@@ -2,6 +2,7 @@ from unittest import skip
 import pandas as pd
 import select
 from numpy import var
+import selenium
 from ttkbootstrap.validation import add_regex_validation
 from ttkbootstrap.tableview import Tableview
 from ttkbootstrap.toast import ToastNotification
@@ -10,6 +11,7 @@ from tkinter import W, filedialog
 import ttkbootstrap as ttk
 from PIL import Image
 from excelManager import ExcelManager
+from seleniumManager import SeleniumManager
 
 Image.CUBIC = Image.BICUBIC
 
@@ -169,8 +171,14 @@ class Gradebook(ttk.Frame):
 
     def on_submit(self):
         excel_manager = ExcelManager("./Attendata.xlsx", "CIE")
-        for i in range(1, 13):
-            print(excel_manager.get_student_data(1, 12))
+        selenium_manager = SeleniumManager()
+        selenium_manager.open_whatsapp()
+        for i in range(1, excel_manager.max_rows + 1):
+            if data := excel_manager.get_student_data(1, i):
+                selenium_manager.send_message(
+                    data['name'], data['phone_number'])
+            break
+        selenium_manager.logout()
 
     def on_cancel(self):
         """Cancel and close the application."""
