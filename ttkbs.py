@@ -9,6 +9,7 @@ from ttkbootstrap.constants import BOTH, YES, X, LEFT, RIGHT, DANGER, SUCCESS, P
 from tkinter import W, filedialog
 import ttkbootstrap as ttk
 from PIL import Image
+from excelManager import ExcelManager
 
 Image.CUBIC = Image.BICUBIC
 
@@ -167,15 +168,9 @@ class Gradebook(ttk.Frame):
     #     self.table = self.create_table()
 
     def on_submit(self):
-        # how to skip first 9 rows in pandas
-
-        # df = pd.read_excel(str(self.XLFILEPATH.get()))
-        df = pd.read_excel(str(
-            ("/Users/bhuvansa/Desktop/Projects/unsorted/Whatsappbot/FourthSem/Attendata.xlsx")))
-        for index, row in df.iterrows():
-            print(index, row)
-            if index == 1:
-                break
+        excel_manager = ExcelManager("./Attendata.xlsx", "CIE")
+        for i in range(1, 13):
+            print(excel_manager.get_student_data(1, 12))
 
     def on_cancel(self):
         """Cancel and close the application."""
