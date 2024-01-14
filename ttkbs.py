@@ -13,6 +13,8 @@ from PIL import Image
 from excelManager import ExcelManager
 from seleniumManager import SeleniumManager
 from messageGenerator import messege_generator
+from customDatatypes import StringListVar
+import openpyxl
 
 Image.CUBIC = Image.BICUBIC
 
@@ -22,6 +24,10 @@ class Gradebook(ttk.Frame):
         super().__init__(master_window, padding=(20, 10))
         self.pack(fill=BOTH, expand=YES)
         self.XLFILEPATH = ttk.StringVar(value="Select File")
+        self.sheet_name = StringListVar(master=self)
+        self.sheet_input_var = ttk.StringVar()
+        self.sheet_input_var.trace_add("write", self.load_data)
+
         self.name = ttk.StringVar(value="")
         self.student_id = ttk.StringVar(value="")
         self.course_name = ttk.StringVar(value="")
@@ -34,6 +40,7 @@ class Gradebook(ttk.Frame):
         instruction.pack(fill=X, pady=10)
 
         self.create_select_file("Select File: ", self.XLFILEPATH)
+        self.sheet_input = self.create_option_selector("Select Sheet: ", self.sheet_input_var, self.sheet_input_var)
         self.create_form_entry("Mentor Name: ", self.name)
         self.create_form_entry("Internals: ", self.student_id)
         self.create_form_entry("Course Name: ", self.course_name)
@@ -47,6 +54,17 @@ class Gradebook(ttk.Frame):
         file_path = filedialog.askopenfilename()
         if file_path:
             self.XLFILEPATH.set(file_path)
+            self.load_sheet()
+    
+    def load_sheet(self):
+        workbook = openpyxl.load_workbook(self.XLFILEPATH.get())
+        self.sheet_name.set(workbook.sheetnames)
+        self.sheet_input.configure(values=workbook.sheetnames)
+        print(self.sheet_name.get())
+
+    def load_data(self, *args):
+        print("I am no outsider I am jaime lannister", self.sheet_input_var.get())
+
 
     def create_form_entry(self, label, variable):
         form_field_container = ttk.Frame(self)
@@ -63,6 +81,20 @@ class Gradebook(ttk.Frame):
         add_regex_validation(form_input, r'^[a-zA-Z0-9_ ]*$')
 
         return form_input
+    
+    def create_option_selector(self, label, values, variable):
+        sheet_selector_container = ttk.Frame(self)
+        sheet_selector_container.pack(fill=X, expand=YES, pady=5)
+
+        sheet_selector_label = ttk.Label(
+            master=sheet_selector_container, text=label, width=15)
+        sheet_selector_label.pack(side=LEFT, padx=12)
+
+        self.sheet_selector = ttk.Combobox(
+            master=sheet_selector_container, values=values.get(), textvariable=self.sheet_input_var)
+        self.sheet_selector.pack(side=LEFT, padx=5, fill=X, expand=YES)
+
+        return self.sheet_selector
 
     def create_select_file(self, label, variable):
         form_field_container = ttk.Frame(self)
