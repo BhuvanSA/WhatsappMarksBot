@@ -34,8 +34,8 @@ class Gradebook(ttk.Frame):
         instruction.pack(fill=X, pady=10)
 
         self.create_select_file("Select File: ", self.XLFILEPATH)
-        self.create_form_entry("Name: ", self.name)
-        self.create_form_entry("Student ID: ", self.student_id)
+        self.create_form_entry("Mentor Name: ", self.name)
+        self.create_form_entry("Internals: ", self.student_id)
         self.create_form_entry("Course Name: ", self.course_name)
         self.final_score_input = self.create_form_entry(
             "Final Score: ", self.final_score)
@@ -119,14 +119,9 @@ class Gradebook(ttk.Frame):
         self.final_score.set(meter.amountusedvar)
         self.final_score_input.configure(textvariable=meter.amountusedvar)
 
-    def update_XLFILEPATH(self):
-        self.XLFILEPATH.set(filedialog.askopenfilename(
-            initialdir="./", title="Select file", filetypes=(("Excel files", "*.xlsx"), ("all files", "*.*"))))
-        self.XLFILEPATH_INPUT.configure(textvariable=self.XLFILEPATH)
-
     def create_table(self):
         coldata = [
-            {"text": "Name"},
+            {"text": "Mentor Name"},
             {"text": "Student ID", "stretch": False},
             {"text": "Course Name"},
             {"text": "Final Score", "stretch": False}
@@ -188,6 +183,6 @@ class Gradebook(ttk.Frame):
 
 
 if __name__ == "__main__":
-    app = ttk.Window("Gradebook", "superhero", resizable=(True, True))
+    app = ttk.Window("Marks Sender", "superhero", resizable=(True, True))
     Gradebook(app)
     app.mainloop()

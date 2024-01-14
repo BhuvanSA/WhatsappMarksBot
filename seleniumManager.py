@@ -36,9 +36,9 @@ class SeleniumManager:
         self.browser.set_window_position(screen_width // 2, 0)
 
         self.browser.get("https://web.whatsapp.com")
-        WebDriverWait(self.browser, 200).until(
+        WebDriverWait(self.browser, 600).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, self.SEARCH_CSS)))
-        time.sleep(3)
+        time.sleep(1)
 
     def send_message(self, message: str, phoneNumber: str, country_code: str = '+91'):
         """
