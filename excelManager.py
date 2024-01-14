@@ -71,6 +71,8 @@ class ExcelManager:
         """
 
         student_data = dict()
+        student_data['internal'] = internal
+        student_data['marks'] = dict()
         row = self.__curr_row + slno - 1
 
         student_data['usn'] = str(self.sheet.cell(row, 2).value)
@@ -82,9 +84,11 @@ class ExcelManager:
             subject_code = str(self.sheet.cell(
                 self.column_names_row, col).value)
             value = str(self.sheet.cell(row, col).value)
-            student_data[subject_code] = f"{value}/{self.max_marks[subject_code]}"
+            student_data['marks'][subject_code] = f"{value} / {self.max_marks[subject_code]}"
 
         student_data['phone_number'] = str(
             self.sheet.cell(row, self.sheet.max_column).value)
 
         return student_data
+
+# how to create a nested dict in python?

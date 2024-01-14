@@ -12,6 +12,7 @@ import ttkbootstrap as ttk
 from PIL import Image
 from excelManager import ExcelManager
 from seleniumManager import SeleniumManager
+from messageGenerator import messege_generator
 
 Image.CUBIC = Image.BICUBIC
 
@@ -175,8 +176,9 @@ class Gradebook(ttk.Frame):
         selenium_manager.open_whatsapp()
         for i in range(1, excel_manager.max_rows + 1):
             if data := excel_manager.get_student_data(1, i):
+                message = messege_generator(data)
                 selenium_manager.send_message(
-                    data['name'], data['phone_number'])
+                    message, data['phone_number'])
             break
         selenium_manager.logout()
 
