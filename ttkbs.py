@@ -3,7 +3,7 @@ import pandas as pd
 import select
 from numpy import var
 import selenium
-from ttkbootstrap.validation import add_regex_validation
+from ttkbootstrap.validation import add_regex_validation, add_range_validation, add_numeric_validation
 from ttkbootstrap.tableview import Tableview
 from ttkbootstrap.toast import ToastNotification
 from ttkbootstrap.constants import BOTH, YES, X, LEFT, RIGHT, DANGER, SUCCESS, PRIMARY
@@ -26,37 +26,45 @@ class Gradebook(ttk.Frame):
         self.sheet_input_var = ttk.StringVar(value="Select Sheet")
         self.sheet_input_var.trace_add("write", self.load_data)
         self.internals_input_var = ttk.StringVar(value="Select Internals")
+        self.usn_start_var = ttk.IntVar(value=1)
+        self.usn_start_var.trace_add("write", self.check_data)
+        self.usn_end_var = ttk.IntVar(value=10)
+        self.usn_end_var.trace_add("write", self.check_data)
+        self.usn_end = ttk.IntVar(value=10)
 
-        self.name = ttk.StringVar(value="")
+        self.mentor_name = ttk.StringVar(value="")
         self.student_id = ttk.StringVar(value="")
         self.course_name = ttk.StringVar(value="")
         self.final_score = ttk.DoubleVar(value=0)
         self.data = []
         self.colors = master_window.style.colors
+        # self.excel_manager =
 
         instruction_text = "Please enter your contact information: "
         instruction = ttk.Label(self, text=instruction_text, width=50)
         instruction.pack(fill=X, pady=10)
 
         self.create_select_file("Select File: ", self.XLFILEPATH)
-        self.sheet_input = self.create_option_selector("Select Sheet: ", self.sheet_input_var)
-        self.internals = self.create_option_selector("Select Internals: ", self.internals_input_var)
-        self.create_form_entry("Mentor Name: ", self.name)
+        self.sheet_input = self.create_option_selector(
+            "Select Sheet: ", self.sheet_input_var)
+        self.internals = self.create_option_selector(
+            "Select Internals: ", self.internals_input_var)
+        self.create_form_entry("Mentor Name: ", self.mentor_name)
         # self.create_form_entry("Usn Range: ", self.course_name)
         # self.create_range_entry("Usn Range: ", )
-        self.final_score_input = self.create_form_entry(
-            "Final Score: ", self.final_score)
-        self.create_meter()
+        self.range = self.create_range_spinboxes(
+            "SLNo Range: ", self.usn_start_var, self.usn_end_var)
+        self.meter_var = self.create_meter(
+            current=5, total=self.usn_end_var.get())
         self.create_buttonbox()
         self.table = self.create_table()
-
 
     def select_file(self):
         file_path = filedialog.askopenfilename()
         if file_path:
             self.XLFILEPATH.set(file_path)
             self.load_sheet()
-    
+
     def load_sheet(self):
         try:
             workbook = openpyxl.load_workbook(self.XLFILEPATH.get())
@@ -65,15 +73,27 @@ class Gradebook(ttk.Frame):
             print("File not found")
 
     def load_data(self, *args):
-        print("I am no outsider I am jaime lannister", self.sheet_input_var.get())
+        # print("I am no outsider I am jaime lannister", self.sheet_input_var.get())
 
         try:
-            self.excel_manager = ExcelManager(self.XLFILEPATH.get(), self.sheet_input_var.get())
-            self.internals.configure(values=[str(x) for x in range(1,self.excel_manager.max_internal+1)])
+            self.excel_manager = ExcelManager(
+                self.XLFILEPATH.get(), self.sheet_input_var.get())
+            self.internals.configure(
+                values=[str(x) for x in range(1, self.excel_manager.max_internal+1)])
         except:
             print("Sheet not found")
 
+        self.range[0].configure(to=int(self.excel_manager.slno_upper_limit))
+        self.range[1].configure(to=int(self.excel_manager.slno_upper_limit))
+        self.usn_end.set(int(self.excel_manager.slno_upper_limit))
+        self.usn_end_var.set(int(self.excel_manager.slno_upper_limit))
 
+    def check_data(self, *args):
+        add_range_validation(self.range[0], 1, self.usn_end_var.get())
+        add_range_validation(
+            self.range[1], self.usn_start_var.get() + 1, self.usn_end.get())
+        self.meter_var.configure(
+            amounttotal=self.usn_end_var.get()-self.usn_start_var.get())
 
     def create_form_entry(self, label, variable):
         form_field_container = ttk.Frame(self)
@@ -90,7 +110,7 @@ class Gradebook(ttk.Frame):
         add_regex_validation(form_input, r'^[a-zA-Z0-9_ ]*$')
 
         return form_input
-    
+
     def create_option_selector(self, label, variable):
         sheet_selector_container = ttk.Frame(self)
         sheet_selector_container.pack(fill=X, expand=YES, pady=5)
@@ -119,6 +139,21 @@ class Gradebook(ttk.Frame):
 
         select_file_button.pack(side=LEFT, padx=5, fill=X, expand=YES)
 
+    def create_range_spinboxes(self, label, variable1, variable2):
+        spinbox_container = ttk.Frame(self)
+        spinbox_container.pack(fill=X, expand=YES, pady=5)
+
+        spinbox_label = ttk.Label(spinbox_container, text=label, width=15)
+        spinbox_label.pack(side=LEFT, padx=12)
+
+        spinbox1 = ttk.Spinbox(spinbox_container, from_=1,
+                               to=self.usn_end.get(), textvariable=variable1)
+        spinbox1.pack(side=LEFT, padx=5, fill=X, expand=YES)
+        spinbox2 = ttk.Spinbox(spinbox_container, from_=1,
+                               to=self.usn_end.get(), textvariable=variable2)
+        spinbox2.pack(side=LEFT, padx=5, fill=X, expand=YES)
+        return [spinbox1, spinbox2]
+
     def create_buttonbox(self):
         button_container = ttk.Frame(self)
         button_container.pack(fill=X, expand=YES, pady=(15, 10))
@@ -143,22 +178,21 @@ class Gradebook(ttk.Frame):
 
         submit_btn.pack(side=RIGHT, padx=5)
 
-    def create_meter(self):
+    def create_meter(self, current, total):
         meter = ttk.Meter(
             master=self,
             metersize=150,
             padding=5,
-            amounttotal=100,
-            amountused=50,
+            amounttotal=total,
+            amountused=current,
             metertype="full",
-            subtext="Final Score",
-            interactive=True,
+            subtext="Complete",
+            interactive=False,
         )
 
-        meter.pack()
+        meter.pack(pady=(30, 0), padx=10)
 
-        self.final_score.set(meter.amountusedvar)
-        self.final_score_input.configure(textvariable=meter.amountusedvar)
+        return meter
 
     def create_table(self):
         coldata = [
@@ -207,15 +241,16 @@ class Gradebook(ttk.Frame):
     #     self.table = self.create_table()
 
     def on_submit(self):
-        excel_manager = ExcelManager("./Attendata.xlsx", "CIE")
         selenium_manager = SeleniumManager()
         selenium_manager.open_whatsapp()
-        for i in range(1, excel_manager.max_rows + 1):
-            if data := excel_manager.get_student_data(1, i):
-                message = messege_generator(data)
+        for i in range(1, self.excel_manager.max_rows + 1):
+            if data := self.excel_manager.get_student_data(int(self.internals_input_var.get()), i):
+                print(data)
+                message = messege_generator(data, self.mentor_name.get())
+                print(message)
                 selenium_manager.send_message(
                     message, data['phone_number'])
-            break
+                break
         selenium_manager.logout()
 
     def on_cancel(self):

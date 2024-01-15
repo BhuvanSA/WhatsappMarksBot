@@ -1,7 +1,7 @@
 from textwrap import dedent
 
 
-def messege_generator(data: dict, mentor: str = "Lakshmikantha G C", sem: int = 4):
+def messege_generator(data: dict, mentor: str = "Lakshmikantha G C", sem: int = 5):
     """ Returns the messege to be sent to the parent
         data: dict - The student data (default: None)
         mentor: str - The mentor name (default: "Lakshmikantha G C")

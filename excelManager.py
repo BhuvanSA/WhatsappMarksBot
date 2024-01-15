@@ -17,7 +17,14 @@ class ExcelManager:
         self.max_internal = 1
         self.__get_max_marks()
         self.max_rows = self.sheet.max_row - self.__curr_row + 1
-        # print(self.max_internal, self.max_marks)
+        self.slno_upper_limit = self.__find_max_rows()
+
+    def __find_max_rows(self):
+        maxy = self.sheet.max_row
+        while True:
+            if value := self.sheet.cell(maxy, 1).value:
+                return str(value)
+            maxy -= 1
 
     def __skip_header(self):
         ''' Skips the header by finding the row with 'Sl No' in the first column '''
@@ -81,10 +88,9 @@ class ExcelManager:
         student_data['name'] = str(self.sheet.cell(row, 3).value)
 
         for col in range(3 + internal, self.sheet.max_column - 1, self.max_internal):
-            subject_code = str(self.sheet.cell(
-                self.column_names_row, col).value)
-            value = str(self.sheet.cell(row, col).value)
-            student_data['marks'][subject_code] = f"{value} / {self.max_marks[subject_code]}"
+            if subject_code := self.sheet.cell(self.column_names_row, col-internal+1).value:
+                value = str(self.sheet.cell(row, col).value)
+                student_data['marks'][subject_code] = f"{value} / {self.max_marks[subject_code]}"
 
         student_data['phone_number'] = str(
             self.sheet.cell(row, self.sheet.max_column).value)
