@@ -13,7 +13,6 @@ from PIL import Image
 from excelManager import ExcelManager
 from seleniumManager import SeleniumManager
 from messageGenerator import messege_generator
-from customDatatypes import StringListVar
 import openpyxl
 
 Image.CUBIC = Image.BICUBIC
@@ -24,9 +23,9 @@ class Gradebook(ttk.Frame):
         super().__init__(master_window, padding=(20, 10))
         self.pack(fill=BOTH, expand=YES)
         self.XLFILEPATH = ttk.StringVar(value="Select File")
-        self.sheet_name = StringListVar(master=self)
-        self.sheet_input_var = ttk.StringVar()
+        self.sheet_input_var = ttk.StringVar(value="Select Sheet")
         self.sheet_input_var.trace_add("write", self.load_data)
+        self.internals_input_var = ttk.StringVar(value="Select Internals")
 
         self.name = ttk.StringVar(value="")
         self.student_id = ttk.StringVar(value="")
@@ -40,15 +39,17 @@ class Gradebook(ttk.Frame):
         instruction.pack(fill=X, pady=10)
 
         self.create_select_file("Select File: ", self.XLFILEPATH)
-        self.sheet_input = self.create_option_selector("Select Sheet: ", self.sheet_input_var, self.sheet_input_var)
+        self.sheet_input = self.create_option_selector("Select Sheet: ", self.sheet_input_var)
+        self.internals = self.create_option_selector("Select Internals: ", self.internals_input_var)
         self.create_form_entry("Mentor Name: ", self.name)
-        self.create_form_entry("Internals: ", self.student_id)
-        self.create_form_entry("Course Name: ", self.course_name)
+        # self.create_form_entry("Usn Range: ", self.course_name)
+        # self.create_range_entry("Usn Range: ", )
         self.final_score_input = self.create_form_entry(
             "Final Score: ", self.final_score)
         self.create_meter()
         self.create_buttonbox()
         self.table = self.create_table()
+
 
     def select_file(self):
         file_path = filedialog.askopenfilename()
@@ -57,13 +58,21 @@ class Gradebook(ttk.Frame):
             self.load_sheet()
     
     def load_sheet(self):
-        workbook = openpyxl.load_workbook(self.XLFILEPATH.get())
-        self.sheet_name.set(workbook.sheetnames)
-        self.sheet_input.configure(values=workbook.sheetnames)
-        print(self.sheet_name.get())
+        try:
+            workbook = openpyxl.load_workbook(self.XLFILEPATH.get())
+            self.sheet_input.configure(values=workbook.sheetnames)
+        except:
+            print("File not found")
 
     def load_data(self, *args):
         print("I am no outsider I am jaime lannister", self.sheet_input_var.get())
+
+        try:
+            self.excel_manager = ExcelManager(self.XLFILEPATH.get(), self.sheet_input_var.get())
+            self.internals.configure(values=[str(x) for x in range(1,self.excel_manager.max_internal+1)])
+        except:
+            print("Sheet not found")
+
 
 
     def create_form_entry(self, label, variable):
@@ -82,7 +91,7 @@ class Gradebook(ttk.Frame):
 
         return form_input
     
-    def create_option_selector(self, label, values, variable):
+    def create_option_selector(self, label, variable):
         sheet_selector_container = ttk.Frame(self)
         sheet_selector_container.pack(fill=X, expand=YES, pady=5)
 
@@ -91,7 +100,7 @@ class Gradebook(ttk.Frame):
         sheet_selector_label.pack(side=LEFT, padx=12)
 
         self.sheet_selector = ttk.Combobox(
-            master=sheet_selector_container, values=values.get(), textvariable=self.sheet_input_var)
+            master=sheet_selector_container, textvariable=variable)
         self.sheet_selector.pack(side=LEFT, padx=5, fill=X, expand=YES)
 
         return self.sheet_selector
@@ -126,7 +135,7 @@ class Gradebook(ttk.Frame):
 
         submit_btn = ttk.Button(
             master=button_container,
-            text="Submit",
+            text="Start",
             command=self.on_submit,
             bootstyle=SUCCESS,
             width=6,
@@ -153,10 +162,10 @@ class Gradebook(ttk.Frame):
 
     def create_table(self):
         coldata = [
-            {"text": "Mentor Name"},
-            {"text": "Student ID", "stretch": False},
-            {"text": "Course Name"},
-            {"text": "Final Score", "stretch": False}
+            {"text": "USN"},
+            {"text": "Name", "stretch": False},
+            {"text": "Phone Number"},
+            {"text": "Reason", "stretch": False}
         ]
 
         table = Tableview(
