@@ -243,14 +243,13 @@ class Gradebook(ttk.Frame):
     def on_submit(self):
         selenium_manager = SeleniumManager()
         selenium_manager.open_whatsapp()
-        for i in range(1, self.excel_manager.max_rows + 1):
+        for i in range(1, min(self.excel_manager.max_rows, self.usn_end_var.get())+1):
             if data := self.excel_manager.get_student_data(int(self.internals_input_var.get()), i):
                 print(data)
                 message = messege_generator(data, self.mentor_name.get())
                 print(message)
                 selenium_manager.send_message(
                     message, data['phone_number'])
-                break
         selenium_manager.logout()
 
     def on_cancel(self):
