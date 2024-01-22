@@ -1,3 +1,4 @@
+# from msilib.text import tables
 from unittest import skip
 import pandas as pd
 import threading
@@ -94,10 +95,10 @@ class Gradebook(ttk.Frame):
             add_range_validation(self.range[0], 1, self.usn_end_var.get())
             add_range_validation(
                 self.range[1], self.usn_start_var.get() + 1, self.usn_end.get())
+            self.meter_var.configure(
+                amounttotal=(int(self.usn_end_var.get())-int(self.usn_start_var.get()) + 1))
         except:
             ...
-        self.meter_var.configure(
-            amounttotal=(int(self.usn_end_var.get())-int(self.usn_start_var.get()) + 1))
 
     def create_form_entry(self, label, variable):
         form_field_container = ttk.Frame(self)
@@ -154,7 +155,7 @@ class Gradebook(ttk.Frame):
                                to=self.usn_end.get(), textvariable=variable1)
         spinbox1.pack(side=LEFT, padx=5, fill=X, expand=YES)
         spinbox2 = ttk.Spinbox(spinbox_container, from_=1,
-                               to=self.usn_end.get(), textvariable=variable2)
+                               to=self.usn_end.get(),  textvariable=variable2)
         spinbox2.pack(side=LEFT, padx=5, fill=X, expand=YES)
         return [spinbox1, spinbox2]
 
@@ -203,7 +204,7 @@ class Gradebook(ttk.Frame):
             {"text": "USN"},
             {"text": "Name", "stretch": False},
             {"text": "Phone Number"},
-            {"text": "Reason", "stretch": False}
+            {"text": "Status", "stretch": False}
         ]
 
         table = Tableview(
@@ -248,16 +249,22 @@ class Gradebook(ttk.Frame):
         def run_in_thread():
             selenium_manager = SeleniumManager()
             selenium_manager.open_whatsapp()
-            for i in range(1, min(self.excel_manager.max_rows, self.usn_end_var.get())+1):
+            for i in range(max(1, int(self.usn_start_var.get())), min(self.excel_manager.max_rows, self.usn_end_var.get())+1):
                 if data := self.excel_manager.get_student_data(int(self.internals_input_var.get()), i):
                     message = messege_generator(data, self.mentor_name.get())
                     try:
                         selenium_manager.send_message(
                             message, data['phone_number'])
-                        self.meter_var.configure(amountused=i)
+                        self.meter_var.configure(
+                            amountused=i - self.usn_start_var.get() + 1)
+                        self.table.insert_row(
+                            'end', [data['usn'], data['name'], data['phone_number'], "Sent"])
+                        self.table.load_table_data()  # clear_filters=True
                     except Exception as error:
-                        print(data['phone_number'], "error")
-                        print('Error while sending message', error, '\n')
+                        self.table.insert_row(
+                            'end', [data['usn'], data['name'], data['phone_number'], "Invalid Phone Number"])
+                        self.table.load_table_data()  # clear_filters=True
+
             selenium_manager.logout()
         threading.Thread(target=run_in_thread).start()
 
