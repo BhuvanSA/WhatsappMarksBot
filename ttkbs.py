@@ -1,5 +1,6 @@
 from unittest import skip
 import pandas as pd
+import threading
 import select
 from numpy import var
 import selenium
@@ -55,7 +56,7 @@ class Gradebook(ttk.Frame):
         self.range = self.create_range_spinboxes(
             "SLNo Range: ", self.usn_start_var, self.usn_end_var)
         self.meter_var = self.create_meter(
-            current=5, total=self.usn_end_var.get())
+            current=0, total=int(self.usn_end_var.get()) - int(self.usn_start_var.get()) + 1)
         self.create_buttonbox()
         self.table = self.create_table()
 
@@ -89,11 +90,14 @@ class Gradebook(ttk.Frame):
         self.usn_end_var.set(int(self.excel_manager.slno_upper_limit))
 
     def check_data(self, *args):
-        add_range_validation(self.range[0], 1, self.usn_end_var.get())
-        add_range_validation(
-            self.range[1], self.usn_start_var.get() + 1, self.usn_end.get())
+        try:
+            add_range_validation(self.range[0], 1, self.usn_end_var.get())
+            add_range_validation(
+                self.range[1], self.usn_start_var.get() + 1, self.usn_end.get())
+        except:
+            ...
         self.meter_var.configure(
-            amounttotal=self.usn_end_var.get()-self.usn_start_var.get())
+            amounttotal=(int(self.usn_end_var.get())-int(self.usn_start_var.get()) + 1))
 
     def create_form_entry(self, label, variable):
         form_field_container = ttk.Frame(self)
@@ -241,16 +245,21 @@ class Gradebook(ttk.Frame):
     #     self.table = self.create_table()
 
     def on_submit(self):
-        selenium_manager = SeleniumManager()
-        selenium_manager.open_whatsapp()
-        for i in range(1, min(self.excel_manager.max_rows, self.usn_end_var.get())+1):
-            if data := self.excel_manager.get_student_data(int(self.internals_input_var.get()), i):
-                print(data)
-                message = messege_generator(data, self.mentor_name.get())
-                print(message)
-                selenium_manager.send_message(
-                    message, data['phone_number'])
-        selenium_manager.logout()
+        def run_in_thread():
+            selenium_manager = SeleniumManager()
+            selenium_manager.open_whatsapp()
+            for i in range(1, min(self.excel_manager.max_rows, self.usn_end_var.get())+1):
+                if data := self.excel_manager.get_student_data(int(self.internals_input_var.get()), i):
+                    message = messege_generator(data, self.mentor_name.get())
+                    try:
+                        selenium_manager.send_message(
+                            message, data['phone_number'])
+                        self.meter_var.configure(amountused=i)
+                    except Exception as error:
+                        print(data['phone_number'], "error")
+                        print('Error while sending message', error, '\n')
+            selenium_manager.logout()
+        threading.Thread(target=run_in_thread).start()
 
     def on_cancel(self):
         """Cancel and close the application."""
