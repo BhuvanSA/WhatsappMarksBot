@@ -1,10 +1,7 @@
-# from msilib.text import tables
 from unittest import skip
 import pandas as pd
 import threading
-import select
 from numpy import var
-import selenium
 from ttkbootstrap.validation import add_regex_validation, add_range_validation, add_numeric_validation
 from ttkbootstrap.tableview import Tableview
 from ttkbootstrap.toast import ToastNotification
@@ -42,7 +39,7 @@ class Gradebook(ttk.Frame):
         self.colors = master_window.style.colors
         # self.excel_manager =
 
-        instruction_text = "Please enter your contact information: "
+        instruction_text = "Please select the excel file and sheet to load the data from."
         instruction = ttk.Label(self, text=instruction_text, width=50)
         instruction.pack(fill=X, pady=10)
 
