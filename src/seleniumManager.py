@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 import time
 
 
@@ -18,7 +19,9 @@ class SeleniumManager:
 
     def __init__(self):
         """Initializes the SeleniumManager with a new Chrome browser instance."""
-        self.browser = webdriver.Chrome()
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        self.browser = webdriver.Chrome(options=chrome_options)
 
     def open_whatsapp(self):
         """Opens WhatsApp Web and waits for the user to log in."""
