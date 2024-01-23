@@ -13,7 +13,6 @@ from excelManager import ExcelManager
 from seleniumManager import SeleniumManager
 from messageGenerator import messege_generator
 import openpyxl
-
 Image.CUBIC = Image.BICUBIC
 
 
@@ -217,18 +216,6 @@ class Gradebook(ttk.Frame):
         table.pack(fill=BOTH, expand=YES, padx=10, pady=10)
         return table
 
-    # def on_submit(self):
-    #     """Print the contents to console and return the values."""
-    #     name = self.name.get()
-    #     student_id = self.student_id.get()
-    #     course_name = self.course_name.get()
-    #     final_score = self.final_score_input.get()
-
-    #     print("Name:", name)
-    #     print("Student ID: ", student_id)
-    #     print("Course Name:", course_name)
-    #     print("Final Score:", final_score)
-
     #     toast = ToastNotification(
     #         title="Submission successful!",
     #         message="Your data has been successfully submitted.",
@@ -270,7 +257,11 @@ class Gradebook(ttk.Frame):
         self.quit()
 
 
-if __name__ == "__main__":
+def main():
     app = ttk.Window("Marks Sender", "superhero", resizable=(True, True))
     Gradebook(app)
     app.mainloop()
+
+
+if __name__ == "__main__":
+    main()
