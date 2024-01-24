@@ -2,8 +2,9 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
 import time
+import base64
+import os
 
 
 class SeleniumManager:
@@ -16,12 +17,11 @@ class SeleniumManager:
     LOGOUTBUTTON_CSS = '#app > div > div.two._1jJ70 > div._2Ts6i._3RGKj > header > div._604FD > div > span > div._3OtEr._2Qn52 > span > div > ul > li:nth-child(6) > div'
     CONFIRMBUTTON_CSS = '#app > div > span:nth-child(3) > div > div > div > div > div > div > div.p357zi0d.ns59xd2u.kcgo1i74.gq7nj7y3.lnjlmjd6.przvwfww.mc6o24uu.e65innqk.le5p0ye3 > div > button.emrlamx0.aiput80m.h1a80dm5.sta02ykp.g0rxnol2.l7jjieqr.hnx8ox4h.f8jlpxt4.l1l4so3b.le5p0ye3.m2gb0jvt.rfxpxord.gwd8mfxi.mnh9o63b.qmy7ya1v.dcuuyf4k.swfxs4et.bgr8sfoe.a6r886iw.fx1ldmn8.orxa12fk.bkifpc9x.rpz5dbxo.bn27j4ou.oixtjehm.hjo1mxmu.snayiamo.szmswy5k > div > div'
     FINAL_CSS = '#app > div > div.landing-wrapper > div.landing-window > div.landing-main > div > div > div._3rDmx > div > span'
+    QR_CSS = '#app > div > div.landing-wrapper > div.landing-window > div.landing-main > div > div > div._2I5ox > div > canvas'
 
     def __init__(self):
         """Initializes the SeleniumManager with a new Chrome browser instance."""
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        self.browser = webdriver.Chrome(options=chrome_options)
+        self.browser = webdriver.Chrome()
 
     def open_whatsapp(self):
         """Opens WhatsApp Web and waits for the user to log in."""
@@ -39,9 +39,28 @@ class SeleniumManager:
         self.browser.set_window_position(screen_width // 2, 0)
 
         self.browser.get("https://web.whatsapp.com")
+
+        WebDriverWait(self.browser, 200).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, self.QR_CSS)))
+
+        # Execute JavaScript to get the Data URL of the canvas
+        canvas = self.browser.find_element(By.CSS_SELECTOR, self.QR_CSS)
+        canvas_base64 = self.browser.execute_script(
+            "return arguments[0].toDataURL('image/png').substring(21);", canvas)
+
+        # Convert the base64 string to bytes
+        canvas_png = base64.b64decode(canvas_base64)
+
+        # Write the bytes to a file
+        with open('./data/qr_code.png', 'wb') as f:
+            f.write(canvas_png)
+
         WebDriverWait(self.browser, 600).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, self.SEARCH_CSS)))
         time.sleep(1)
+
+        os.remove('./data/qr_code.png')
+        print("Logged in successfully\n")
 
     def send_message(self, message: str, phoneNumber: str, country_code: str = '+91'):
         """
@@ -61,7 +80,7 @@ class SeleniumManager:
             sendButton = WebDriverWait(self.browser, 30).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, self.SENDBUTTON_CSS)))
             time.sleep(1)
-            # sendButton.click()
+            sendButton.click()
             time.sleep(4)
         except Exception as error:
             print(phoneNumber, "error")
@@ -90,3 +109,9 @@ class SeleniumManager:
 
         self.browser.close()
         self.browser.quit()
+
+
+if __name__ == "__main__":
+    seleniumManager = SeleniumManager()
+    seleniumManager.open_whatsapp()
+    print("asdfasd")
