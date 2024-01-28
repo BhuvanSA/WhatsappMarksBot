@@ -1,12 +1,9 @@
-from unittest import skip
-import pandas as pd
 import threading
-from numpy import var
 from ttkbootstrap.validation import add_regex_validation, add_range_validation, add_numeric_validation
 from ttkbootstrap.tableview import Tableview
-from ttkbootstrap.toast import ToastNotification
+# from ttkbootstrap.toast import ToastNotification
 from ttkbootstrap.constants import BOTH, YES, X, LEFT, RIGHT, DANGER, SUCCESS, PRIMARY
-from tkinter import W, filedialog
+from tkinter import filedialog
 import ttkbootstrap as ttk
 from PIL import Image
 from excelManager import ExcelManager
