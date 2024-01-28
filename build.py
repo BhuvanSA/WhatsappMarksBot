@@ -6,5 +6,5 @@ PyInstaller.__main__.run([
     '--windowed',
     # '--add-binary=%s' % './path/to/your/assets:assets',
     # '--icon=%s' % './path/to/your/icon.ico',
-    'src',
+    'src/__main__.py',
 ])
