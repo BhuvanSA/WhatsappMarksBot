@@ -17,7 +17,9 @@ class ExcelManager:
         self.max_internal = 1
         self.__get_max_marks()
         self.max_rows = self.sheet.max_row - self.__curr_row + 1
+
         self.slno_upper_limit = self.__find_max_rows()
+        print("init")
 
     def __find_max_rows(self):
         maxy = self.sheet.max_row
@@ -90,6 +92,8 @@ class ExcelManager:
         for col in range(3 + internal, self.sheet.max_column - 1, self.max_internal):
             if subject_code := self.sheet.cell(self.column_names_row, col-internal+1).value:
                 value = str(self.sheet.cell(row, col).value)
+                if value == 'NE':
+                    continue
                 student_data['marks'][subject_code] = f"{value} / {self.max_marks[subject_code]}"
 
         student_data['phone_number'] = str(

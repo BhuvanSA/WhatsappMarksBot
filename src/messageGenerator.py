@@ -19,7 +19,7 @@ def messege_generator(data: dict, mentor: str = "Lakshmikantha G C", sem: int = 
         body += f"  {key} : {data['marks'][key]}%0A\n"
 
     footer = dedent(
-        f"""Regards, %0A\n  {mentor} Mentor %0A\n  {sem} Sem AIML""")
+        f"""Regards, %0A\n  {mentor} Class Teacher %0A\n  {sem} Sem AIML""")
 
     return header + body + footer
 

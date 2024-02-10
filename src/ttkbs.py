@@ -1,5 +1,5 @@
 import threading
-from ttkbootstrap.validation import add_regex_validation, add_range_validation, add_numeric_validation
+from ttkbootstrap.validation import add_regex_validation, add_range_validation
 from ttkbootstrap.tableview import Tableview
 # from ttkbootstrap.toast import ToastNotification
 from ttkbootstrap.constants import BOTH, YES, X, LEFT, RIGHT, DANGER, SUCCESS, PRIMARY
@@ -62,21 +62,22 @@ class Gradebook(ttk.Frame):
 
     def load_sheet(self):
         try:
-            workbook = openpyxl.load_workbook(self.XLFILEPATH.get())
+            workbook = openpyxl.load_workbook(
+                self.XLFILEPATH.get(), read_only=True)
             self.sheet_input.configure(values=workbook.sheetnames)
-        except:
+        except Exception as e:
+            print(e)
             print("File not found")
 
     def load_data(self, *args):
         # print("I am no outsider I am jaime lannister", self.sheet_input_var.get())
-
         try:
             self.excel_manager = ExcelManager(
                 self.XLFILEPATH.get(), self.sheet_input_var.get())
             self.internals.configure(
                 values=[str(x) for x in range(1, self.excel_manager.max_internal+1)])
-        except:
-            print("Sheet not found")
+        except Exception as e:
+            print(e, "\nSheet not found")
 
         self.range[0].configure(to=int(self.excel_manager.slno_upper_limit))
         self.range[1].configure(to=int(self.excel_manager.slno_upper_limit))

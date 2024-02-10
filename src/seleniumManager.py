@@ -58,7 +58,7 @@ class SeleniumManager:
             sendButton = WebDriverWait(self.browser, 30).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, self.SENDBUTTON_CSS)))
             time.sleep(1)
-            # sendButton.click()
+            sendButton.click()
             time.sleep(4)
         except Exception as error:
             print(phoneNumber, "error")
