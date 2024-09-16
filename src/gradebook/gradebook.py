@@ -15,6 +15,15 @@ Image.CUBIC = Image.BICUBIC
 
 class Gradebook(ttk.Frame):
     def __init__(self, master_window):
+        """
+        Initializes the Gradebook class.
+
+        Args:
+            master_window: The master window object.
+
+        Returns:
+            None
+        """
         super().__init__(master_window, padding=(20, 10))
         self.pack(fill=BOTH, expand=YES)
         self.XLFILEPATH = ttk.StringVar(value="Select File")
@@ -33,7 +42,6 @@ class Gradebook(ttk.Frame):
         self.final_score = ttk.DoubleVar(value=0)
         self.data = []
         self.colors = master_window.style.colors
-        # self.excel_manager =
 
         instruction_text = "Please select the excel file and sheet to load the data from."
         instruction = ttk.Label(self, text=instruction_text, width=50)
@@ -45,8 +53,7 @@ class Gradebook(ttk.Frame):
         self.internals = self.create_option_selector(
             "Select Internals: ", self.internals_input_var)
         self.create_form_entry("Mentor Name: ", self.mentor_name)
-        # self.create_form_entry("Usn Range: ", self.course_name)
-        # self.create_range_entry("Usn Range: ", )
+
         self.range = self.create_range_spinboxes(
             "SLNo Range: ", self.usn_start_var, self.usn_end_var)
         self.meter_var = self.create_meter(
@@ -55,12 +62,23 @@ class Gradebook(ttk.Frame):
         self.table = self.create_table()
 
     def select_file(self):
+        """
+        Opens a file dialog to select a file and sets the selected file path to self.XLFILEPATH.
+        Then, it calls the load_sheet method to load the selected sheet.
+        """
         file_path = filedialog.askopenfilename()
         if file_path:
             self.XLFILEPATH.set(file_path)
             self.load_sheet()
 
     def load_sheet(self):
+        """
+        Loads the Excel sheet and populates the input dropdown with sheet names.
+
+        Raises:
+            Exception: If the file is not found.
+
+        """
         try:
             workbook = openpyxl.load_workbook(
                 self.XLFILEPATH.get(), read_only=True)
@@ -70,7 +88,15 @@ class Gradebook(ttk.Frame):
             print("File not found")
 
     def load_data(self, *args):
-        # print("I am no outsider I am jaime lannister", self.sheet_input_var.get())
+        """
+        Loads data from an Excel file and updates the UI elements accordingly.
+
+        Args:
+            *args: Variable number of arguments.
+
+        Returns:
+            None
+        """
         try:
             self.excel_manager = ExcelManager(
                 self.XLFILEPATH.get(), self.sheet_input_var.get())
@@ -84,7 +110,19 @@ class Gradebook(ttk.Frame):
         self.usn_end.set(int(self.excel_manager.slno_upper_limit))
         self.usn_end_var.set(int(self.excel_manager.slno_upper_limit))
 
-    def check_data(self, *args):
+    def check_data(self):
+        """
+        Check the validity of the data entered in the gradebook.
+
+        Args:
+            *args: Variable number of arguments.
+
+        Raises:
+            Exception: If the data entered is invalid.
+
+        Returns:
+            None
+        """
         try:
             add_range_validation(self.range[0], 1, self.usn_end_var.get())
             add_range_validation(
@@ -95,6 +133,16 @@ class Gradebook(ttk.Frame):
             ...
 
     def create_form_entry(self, label, variable):
+        """
+        Creates a form entry widget with a label and an input field.
+
+        Parameters:
+        label (str): The label text for the form entry.
+        variable (tkinter.StringVar): The variable to store the input value.
+
+        Returns:
+        ttk.Entry: The form input field widget.
+        """
         form_field_container = ttk.Frame(self)
         form_field_container.pack(fill=X, expand=YES, pady=5)
 
@@ -111,6 +159,16 @@ class Gradebook(ttk.Frame):
         return form_input
 
     def create_option_selector(self, label, variable):
+        """
+        Creates an option selector widget with a label and a combobox.
+
+        Args:
+            label (str): The label text for the option selector.
+            variable (tkinter.StringVar): The variable to store the selected option.
+
+        Returns:
+            ttk.Combobox: The created combobox widget.
+        """
         sheet_selector_container = ttk.Frame(self)
         sheet_selector_container.pack(fill=X, expand=YES, pady=5)
 
@@ -125,6 +183,16 @@ class Gradebook(ttk.Frame):
         return self.sheet_selector
 
     def create_select_file(self, label, variable):
+        """
+        Creates a select file button with a label.
+
+        Args:
+            label (str): The label text for the select file button.
+            variable: The variable associated with the select file button.
+
+        Returns:
+            None
+        """
         form_field_container = ttk.Frame(self)
         form_field_container.pack(fill=X, expand=YES, pady=5)
 
@@ -139,6 +207,17 @@ class Gradebook(ttk.Frame):
         select_file_button.pack(side=LEFT, padx=5, fill=X, expand=YES)
 
     def create_range_spinboxes(self, label, variable1, variable2):
+        """
+        Creates a pair of spinboxes for selecting a range of values.
+
+        Args:
+            label (str): The label text for the spinboxes.
+            variable1 (tkinter.StringVar): The variable to store the value of the first spinbox.
+            variable2 (tkinter.StringVar): The variable to store the value of the second spinbox.
+
+        Returns:
+            list: A list containing the two spinbox objects.
+        """
         spinbox_container = ttk.Frame(self)
         spinbox_container.pack(fill=X, expand=YES, pady=5)
 
@@ -154,6 +233,12 @@ class Gradebook(ttk.Frame):
         return [spinbox1, spinbox2]
 
     def create_buttonbox(self):
+        """
+        Create a button box containing Cancel and Start buttons.
+
+        Returns:
+            None
+        """
         button_container = ttk.Frame(self)
         button_container.pack(fill=X, expand=YES, pady=(15, 10))
 
@@ -178,6 +263,16 @@ class Gradebook(ttk.Frame):
         submit_btn.pack(side=RIGHT, padx=5)
 
     def create_meter(self, current, total):
+        """
+        Creates and returns a ttk.Meter widget with the specified current and total values.
+
+        Parameters:
+        current (int): The current value for the meter.
+        total (int): The total value for the meter.
+
+        Returns:
+        ttk.Meter: The created ttk.Meter widget.
+        """
         meter = ttk.Meter(
             master=self,
             metersize=150,
@@ -194,6 +289,12 @@ class Gradebook(ttk.Frame):
         return meter
 
     def create_table(self):
+        """
+        Creates a table view with specified column data and row data.
+
+        Returns:
+            table (Tableview): The created table view.
+        """
         coldata = [
             {"text": "USN"},
             {"text": "Name", "stretch": False},
@@ -214,20 +315,11 @@ class Gradebook(ttk.Frame):
         table.pack(fill=BOTH, expand=YES, padx=10, pady=10)
         return table
 
-    #     toast = ToastNotification(
-    #         title="Submission successful!",
-    #         message="Your data has been successfully submitted.",
-    #         duration=3000,
-    #     )
-
-    #     toast.show_toast()
-
-    #     # Refresh table
-    #     self.data.append((name, student_id, course_name, final_score))
-    #     self.table.destroy()
-    #     self.table = self.create_table()
-
     def on_submit(self):
+        """
+        Executes the submission process in a separate thread.
+        Opens WhatsApp, sends messages to students, and updates the table accordingly.
+        """
         def run_in_thread():
             selenium_manager = SeleniumManager()
             selenium_manager.open_whatsapp()
@@ -256,6 +348,10 @@ class Gradebook(ttk.Frame):
 
 
 def main():
+    """
+    Entry point of the program.
+    Creates an instance of the Gradebook class and starts the application's main loop.
+    """
     app = ttk.Window("Marks Sender", "superhero", resizable=(True, True))
     Gradebook(app)
     app.mainloop()
